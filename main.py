@@ -4,109 +4,67 @@
 # Date last modified: 12/19/2020
 # -------------------------------------------
 
-
 from PIL import Image
-import pygame
+import numpy as np
 
 
 # -------------------------------------------
 
-# Use OOP for each pixel (x, y, surrounding etc)
+
 class Pixel:
     """Pixel class for each pixel in the maze image"""
 
-    def __init__(self, x, y, color):
+    entrances = []
+
+    def __init__(self, x, y, color, is_entrance):
         self.x = x
         self.y = y
         self.color = color
+        self.is_entrance = is_entrance
 
     def __str__(self):
-        return f"x: {self.x}\ny: {self.y}\ncolor: {self.color}"
+        return f"x: {self.x}\ny: {self.y}\ncolor: {self.color}\nis_entrance: {is_entrance}"
 
 
 # -------------------------------------------
 
+im = Image.open("images/maze.png")
+pix = im.load()
+width, height = im.size
 
-def setup_maze():
-    """Setup maze function to create 2d array for each pixel object.
-        Returns the maze array as well as the original maze dimensions."""
-    # load image pixels
-    im = Image.open('images/first_maze.png')
-    pix = im.load()
+# create 2d array of Pixel objects, INCLUDING WHITE LINE
+grid = []
+line = []
 
-    # get image size
-    width, height = im.size
-
-    row = []
-    grid = []
-
-    # get each pixel rgb
-    for y_pos in range(height):
-        for x_pos in range(width):
-            rgb_value = pix[x_pos, y_pos]
-            # create pixel object
-            row.append(Pixel(x_pos, y_pos, rgb_value))
-        grid.append(row)
-        row = []
-
-    return grid, width, height
+# white is 0
 
 
-# -------------------------------------------
+for row in range(width):
+    for col in range(height):
+        # x = col, y = row
+        # get color
+        color = pix[col, row]
+        # check if is entrance on border
+        is_entrance = False
+        if color == 0:
+            if (col != 0 and col != width - 1) and (row != 0 and row != height - 1):
+                if (col == 1 or col == width - 2) or (row == 1 or row == height - 2):
+                    # is entrance
+                    is_entrance = True
+        # add to line
+        line.append(Pixel(col, row, color, is_entrance))
+        # append to separate list for entrances
+        if is_entrance:
+            Pixel.entrances.append(Pixel(col, row, color, is_entrance))
+    # add line row to grid
+    grid.append(line)
+    # reset line
+    line = []
+
+# convert to numpy array
+grid = np.array(grid)
 
 
-def find_starting_position():
-    for i in maze[-1]:
-        if i.color == (255, 255, 255):
-            return i
-
-
-# -------------------------------------------
-
-# globals
-maze, x_len, y_len = setup_maze()
-starting_pixel = find_starting_position()
-
-# -------------------------------------------
-
-# pygame part
-pygame.init()
-maze_image = pygame.image.load("images/first_maze.png")
-game_display = pygame.display.set_mode((x_len, y_len))
-clock = pygame.time.Clock()
-
-
-def draw_original_maze():
-    game_display.blit(maze_image, (0, 0))
-
-def draw_location(x, y):
-    width = 5
-    height = 5
-    pygame.draw.rect(game_display, (255, 0, 0), (x, y, width, height))
-
-def left_turn_algorithm():
-    current_pixel = starting_pixel
-    # move left
-
-
-
-done = False
-
-# draw original maze
-draw_original_maze()
-
-
-# game loop
-while not done:
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-
-    draw_location(starting_pixel.x, starting_pixel.y)
-    left_turn_algorithm()
-
-    pygame.display.update()
-    clock.tick(60)
+print(Pixel.entrances[0])
 
 # -------------------------------------------
