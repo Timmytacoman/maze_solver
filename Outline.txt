@@ -1,0 +1,19 @@
+Identify entrances
+
+
+def solve(pos, behind):
+
+	if current_pixel_pos == end:
+		solved
+
+	* searching *
+
+	search until more than 1 possibility
+	if at split:
+		for i in possibilities:
+			solve(i, split)
+			
+	if 0 possibilities:
+		change failed path to white
+		return	
+			
