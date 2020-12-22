@@ -29,9 +29,23 @@ previous_pos = blue2
 
 at dead end:
 
+current_pos = tan3
+color tan3 red
+possible_paths = [tan1]
+previous_pos = blue2
+fork_pos = [blue1]
 
 
 
+
+Current: Pixel: [3, 24] | Color: 0
+a
+Pixel: [4, 24] | Color: 0
+b
+Current: Pixel: [2, 24] | Color: 0
+a
+Pixel: [3, 24] | Color: 0
+b
 
 
 

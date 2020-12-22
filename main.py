@@ -7,10 +7,12 @@ from PIL import Image
 import pygame
 import time
 
-IMAGE_REF = "images/maze.gif"
-IMAGE_SCALE = 10
-START_COLOR = (196, 255, 14)
-FINISH_COLOR = (236, 28, 36)
+# IMAGE_REF = "images/maze (4).gif"
+# IMAGE_REF = "images/maze (9).gif"
+IMAGE_REF = "images/maze (5).gif"
+IMAGE_SCALE = 1
+START_COLOR = (0, 255, 255)
+FINISH_COLOR = (0, 255, 255)
 PATH_COLOR = (236, 28, 36)
 FORK_COLOR = (0, 168, 243)
 PREVIOUS_COLOR = (255, 174, 200)
@@ -58,8 +60,8 @@ for _x in range(image_width):
     entire_col = []
 
 # Declarations
-start = entrances[1]
-finish = entrances[0]
+start = entrances[0]
+finish = entrances[1]
 
 
 # -------------------------------------------
@@ -106,18 +108,30 @@ def solve():
     global fork_pos
     global fork_pos_previous
     global possible_paths
-
-    # Base case
-    if is_at_finish(current_pos):
-        print("done")
-        exit()
+    global successful_path
+    global pixels_traversed
+    global num_forks
 
     paths = get_paths(current_pos)
 
+    # print(f"Current: {current_pos}")
+
     # Remove previous
     for i in paths:
+        # print("Paths:")
+        # print(i)
+        # print()
         if (i.x, i.y) == (previous_pos.x, previous_pos.y):
             paths.remove(i)
+
+        # Base case
+        if (i.x, i.y) == (finish.x, finish.y):
+            end_time = time.time()
+            print(f"Solved in {end_time - start_time} seconds")
+            print(f"Forks encountered: {num_forks}")
+            print(f"Pixels traversed: {pixels_traversed}")
+            pygame.image.save(display_surface, "MAZE_SOLUTION.png")
+            input()
 
     # for i in paths:
     #     print(i)
@@ -125,30 +139,52 @@ def solve():
 
     num_paths = len(paths)
 
+    # Scary code here
+    if num_paths == 3:
+        paths.pop()
+
+    num_paths = len(paths)
+
     if num_paths == 1:
+        # print(successful_path)
         previous_pos = current_pos
         current_pos = paths[0]
+        pixels_traversed += 1
+        successful_path.append((current_pos.x, current_pos.y))  # add to successful path
         draw_pixel(current_pos.x, current_pos.y, PATH_COLOR)
 
     elif num_paths == 2:
-        print("At fork")
+        num_forks += 1
         fork_pos.append(current_pos)  # add fork pos to list
-        draw_pixel(current_pos.x, current_pos.y, FORK_COLOR)  # mark fork as blue
+        # draw_pixel(current_pos.x, current_pos.y, FORK_COLOR)  # mark fork as blue
         fork_pos_previous.append(previous_pos)  # add previous fork pos to list
-        draw_pixel(previous_pos.x, previous_pos.y, PREVIOUS_COLOR)  # mark previous as pink
+        # draw_pixel(previous_pos.x, previous_pos.y, PREVIOUS_COLOR)  # mark previous as pink
         for i in paths:
             possible_paths.append(i)  # add possible paths to list
-            draw_pixel(i.x, i.y, POSSIBLE_PATH_COLOR)  # color possible paths
+            # draw_pixel(i.x, i.y, POSSIBLE_PATH_COLOR)  # color possible paths
 
         # go down most recent option, possible_paths[-1]
         current_pos = possible_paths[-1]  # select recent path
+        pixels_traversed += 1
+        successful_path.append((current_pos.x, current_pos.y))  # add to successful path
         draw_pixel(current_pos.x, current_pos.y, PATH_COLOR)  # color recent tan to red
         possible_paths.pop()  # remove chosen path from list
         previous_pos = fork_pos[-1]  # make previous the fork pos of the most recent fork
 
 
     elif num_paths == 0:
+        # print(successful_path)
+        # print(fork_pos[-1].x, fork_pos[-1].y)
+
+        index = successful_path.index((fork_pos[-1].x, fork_pos[-1].y)) + 1
+        failed_path = successful_path[index:]
+        for i in failed_path:
+            draw_pixel(i[0], i[1], (255, 255, 255))
+        successful_path = successful_path[:index + 1]
+
         current_pos = possible_paths[-1]  # go back to most recent fork, take other path
+        pixels_traversed += 1
+        successful_path.append((current_pos.x, current_pos.y))  # add to successful path
         draw_pixel(current_pos.x, current_pos.y, PATH_COLOR)  # color it red
         possible_paths.pop()  # remove chosen path from possibilities
         previous_pos = fork_pos[-1]  # select previous as fork pos
@@ -179,6 +215,12 @@ previous_pos = start
 fork_pos = []
 fork_pos_previous = []
 possible_paths = []
+successful_path = [(start.x, start.y)]
+num_forks = 0
+pixels_traversed = 0
+
+start_time = time.time()
+# print(finish)
 
 # Game loop
 running = True
@@ -188,11 +230,14 @@ while running:
             running = False
         # if event.type == pygame.KEYDOWN:
         #     if event.key == pygame.K_DOWN:
+        #         for i in range(30):
+        #             solve()
+        #
+        #     if event.key == pygame.K_LEFT:
         #         solve()
 
-    # clock.tick(40)
-    pygame.display.update()
-
     solve()
+    # clock.tick(5)
+    pygame.display.update()
 
 # -------------------------------------------
