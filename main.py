@@ -7,12 +7,10 @@ from PIL import Image
 import pygame
 import time
 
-# IMAGE_REF = "images/maze (4).gif"
-# IMAGE_REF = "images/maze (9).gif"
-IMAGE_REF = "images/maze (5).gif"
+IMAGE_REF = "images/maze (12).gif"
 IMAGE_SCALE = 1
-START_COLOR = (0, 255, 255)
-FINISH_COLOR = (0, 255, 255)
+START_COLOR = (0, 255, 100)
+FINISH_COLOR = (0, 255, 100)
 PATH_COLOR = (236, 28, 36)
 FORK_COLOR = (0, 168, 243)
 PREVIOUS_COLOR = (255, 174, 200)
@@ -45,19 +43,34 @@ entire_col = []
 grid = []
 entrances = []
 
-# Collect image data, marking entrances as such
+# Collect image data
 for _x in range(image_width):
     for _y in range(image_height):
         pixel = Pixel(_x, _y, color_value[_x, _y])
         entire_col.append(pixel)
-        if color_value[_x, _y] == 0:
-            if (_x == 1 or _x == image_width - 2) and (_y != 0 and _y != image_height - 1):
-                entrances.append(pixel)
-            if (_y == 1 or _y == image_width - 2) and (_x != 0 and _x != image_height - 1):
-                entrances.append(pixel)
-
     grid.append(entire_col)
     entire_col = []
+
+# Find entrances
+
+# Search rows
+for i in range(1, image_width - 1):
+    # Top row
+    if grid[i][1].color == 0:
+        entrances.append(grid[i][1])
+    # Bottom row
+    if grid[i][image_height - 2].color == 0:
+        entrances.append(grid[i][image_height - 2])
+
+# Search cols
+for i in range(1, image_height - 1):
+    # Left col
+    if grid[1][i].color == 0:
+        entrances.append(grid[1][i])
+
+    # Right col
+    if grid[image_width - 2][i].color == 0:
+        entrances.append(grid[image_width - 2][i])
 
 # Declarations
 start = entrances[0]
@@ -102,6 +115,22 @@ def get_paths(pixel):
     return viable_paths
 
 
+def add_color_gradient():
+    colors = []
+    spaces = len(successful_path)
+    for i in range(spaces):
+        num = round(510 / spaces * i)
+        if num < 256:
+            colors.append((255 - num, 0, 0))
+        else:
+            colors.append((0, 0, abs(255 - num)))
+
+    counter = 0
+    for i in successful_path:
+        draw_pixel(i[0], i[1], colors[counter])
+        counter += 1
+
+
 def solve():
     global current_pos
     global previous_pos
@@ -114,39 +143,18 @@ def solve():
 
     paths = get_paths(current_pos)
 
-    # print(f"Current: {current_pos}")
-
     # Remove previous
     for i in paths:
-        # print("Paths:")
-        # print(i)
-        # print()
         if (i.x, i.y) == (previous_pos.x, previous_pos.y):
             paths.remove(i)
-
-        # Base case
-        if (i.x, i.y) == (finish.x, finish.y):
-            end_time = time.time()
-            print(f"Solved in {end_time - start_time} seconds")
-            print(f"Forks encountered: {num_forks}")
-            print(f"Pixels traversed: {pixels_traversed}")
-            pygame.image.save(display_surface, "MAZE_SOLUTION.png")
-            input()
-
-    # for i in paths:
-    #     print(i)
-    # print()
-
     num_paths = len(paths)
 
     # Scary code here
     if num_paths == 3:
         paths.pop()
-
     num_paths = len(paths)
 
     if num_paths == 1:
-        # print(successful_path)
         previous_pos = current_pos
         current_pos = paths[0]
         pixels_traversed += 1
@@ -156,12 +164,9 @@ def solve():
     elif num_paths == 2:
         num_forks += 1
         fork_pos.append(current_pos)  # add fork pos to list
-        # draw_pixel(current_pos.x, current_pos.y, FORK_COLOR)  # mark fork as blue
         fork_pos_previous.append(previous_pos)  # add previous fork pos to list
-        # draw_pixel(previous_pos.x, previous_pos.y, PREVIOUS_COLOR)  # mark previous as pink
         for i in paths:
             possible_paths.append(i)  # add possible paths to list
-            # draw_pixel(i.x, i.y, POSSIBLE_PATH_COLOR)  # color possible paths
 
         # go down most recent option, possible_paths[-1]
         current_pos = possible_paths[-1]  # select recent path
@@ -173,9 +178,6 @@ def solve():
 
 
     elif num_paths == 0:
-        # print(successful_path)
-        # print(fork_pos[-1].x, fork_pos[-1].y)
-
         index = successful_path.index((fork_pos[-1].x, fork_pos[-1].y)) + 1
         failed_path = successful_path[index:]
         for i in failed_path:
@@ -189,6 +191,19 @@ def solve():
         possible_paths.pop()  # remove chosen path from possibilities
         previous_pos = fork_pos[-1]  # select previous as fork pos
         fork_pos.pop()  # remove this fork
+
+    # Base case
+    if is_at_finish(current_pos):
+        end_time = time.time()
+        print(f"Solved in {end_time - start_time} seconds")
+        print(f"Forks encountered: {num_forks}")
+        print(f"Pixels traversed: {pixels_traversed}")
+        add_color_gradient()
+        draw_pixel(finish.x, finish.y, FINISH_COLOR)
+        draw_pixel(start.x, start.y, START_COLOR)
+        pygame.image.save(display_surface, "MAZE_SOLUTION.png")
+        pygame.quit()
+        exit()
 
 
 # -------------------------------------------
@@ -219,8 +234,10 @@ successful_path = [(start.x, start.y)]
 num_forks = 0
 pixels_traversed = 0
 
+print(f"Start: {start}")
+print(f"End: {finish}")
+
 start_time = time.time()
-# print(finish)
 
 # Game loop
 running = True
@@ -228,16 +245,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # if event.type == pygame.KEYDOWN:
-        #     if event.key == pygame.K_DOWN:
-        #         for i in range(30):
-        #             solve()
-        #
-        #     if event.key == pygame.K_LEFT:
-        #         solve()
-
     solve()
-    # clock.tick(5)
     pygame.display.update()
 
 # -------------------------------------------
