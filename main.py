@@ -7,8 +7,9 @@ from PIL import Image
 import pygame
 import time
 
-IMAGE_REF = "images/maze (12).gif"
-IMAGE_SCALE = 1
+# IMAGE_REF = "images/maze (10).gif"
+IMAGE_REF = "images/maze (6).gif"
+IMAGE_SCALE = 3
 START_COLOR = (0, 255, 100)
 FINISH_COLOR = (0, 255, 100)
 PATH_COLOR = (236, 28, 36)
@@ -157,8 +158,8 @@ def solve():
     if num_paths == 1:
         previous_pos = current_pos
         current_pos = paths[0]
-        pixels_traversed += 1
         successful_path.append((current_pos.x, current_pos.y))  # add to successful path
+        pixels_traversed += 1
         draw_pixel(current_pos.x, current_pos.y, PATH_COLOR)
 
     elif num_paths == 2:
@@ -179,10 +180,11 @@ def solve():
 
     elif num_paths == 0:
         index = successful_path.index((fork_pos[-1].x, fork_pos[-1].y)) + 1
+        # index = successful_path.index((fork_pos[-1].x, fork_pos[-1].y))
         failed_path = successful_path[index:]
         for i in failed_path:
             draw_pixel(i[0], i[1], (255, 255, 255))
-        successful_path = successful_path[:index + 1]
+        successful_path = successful_path[:index]  # locked
 
         current_pos = possible_paths[-1]  # go back to most recent fork, take other path
         pixels_traversed += 1
@@ -234,8 +236,8 @@ successful_path = [(start.x, start.y)]
 num_forks = 0
 pixels_traversed = 0
 
-print(f"Start: {start}")
-print(f"End: {finish}")
+# print(f"Start: {start}")
+# print(f"End: {finish}")
 
 start_time = time.time()
 
@@ -245,6 +247,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # if event.type == pygame.KEYDOWN:
+        #     if event.key == pygame.K_DOWN:
+        #         solve()
+
     solve()
     pygame.display.update()
 
