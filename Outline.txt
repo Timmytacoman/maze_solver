@@ -1,19 +1,60 @@
 Identify entrances
 
 
-def solve(pos, behind):
+def solve(pos):
 
-	if current_pixel_pos == end:
-		solved
+	if pos matches end:
+		Done
+	
+	paths = get_paths(pos)
+	
+	remove previous paths
 
-	* searching *
-
-	search until more than 1 possibility
-	if at split:
+	if numpaths == 1:
+		move to spot
+		adjust pos and previous
+		
+	elif 2 or 3
+		mark fork
 		for i in possibilities:
-			solve(i, split)
-			
-	if 0 possibilities:
-		change failed path to white
-		return	
+			pos = i
+			previous = fork
+			solve(pos)
+
+
+
+
+keep track of each:
+-fork pos []
+-possible paths []
+-previous pos at fork []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
 			

@@ -1,0 +1,41 @@
+at first fork:
+
+fork_pos = [current_pos]
+make fork pos blue
+fork_pos_previous = [previous_pos]
+mark fork_pos_previous as pink
+possible_paths = [tan1, tan2]
+color in tan1, tan2
+
+current_pos = tan2
+color tan2 red
+possible_paths = [tan1]
+previous_pos = blue
+
+
+second fork:
+
+fork_pos = [blue1, blue2]
+draw blue2
+fork_pos_previous = [pink1, pink2]
+draw pink2
+
+possible_paths = [tan1, tan3, tan4]
+current_pos = tan4
+make tan4 red
+possible_paths = [tan1, tan3]
+previous_pos = blue2
+
+
+at dead end:
+
+
+
+
+
+
+
+
+
+
+
