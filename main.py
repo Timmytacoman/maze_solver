@@ -6,10 +6,14 @@
 from PIL import Image
 import pygame
 import time
+import os
 
-# IMAGE_REF = "images/maze (10).gif"
-IMAGE_REF = "images/maze (6).gif"
-IMAGE_SCALE = 3
+# IMAGE_REF = "images/maze (13).gif"
+IMAGE_REF = "images/maze (12).gif"
+# IMAGE_REF = "images/maze (12).gif"
+
+IMAGE_SCALE = 1
+# IMAGE_SCALE = 30
 START_COLOR = (0, 255, 100)
 FINISH_COLOR = (0, 255, 100)
 PATH_COLOR = (236, 28, 36)
@@ -132,7 +136,7 @@ def add_color_gradient():
         counter += 1
 
 
-def solve():
+def depth_first_search():
     global current_pos
     global previous_pos
     global fork_pos
@@ -205,6 +209,7 @@ def solve():
         draw_pixel(start.x, start.y, START_COLOR)
         pygame.image.save(display_surface, "MAZE_SOLUTION.png")
         pygame.quit()
+        os.startfile(r"C:\Users\Timothy\PycharmProjects\maze_solver\index.html")
         exit()
 
 
@@ -226,6 +231,7 @@ display_surface.blit(big_image, (0, 0))
 # Draw entrances
 draw_pixel(start.x, start.y, START_COLOR)
 draw_pixel(finish.x, finish.y, FINISH_COLOR)
+pygame.image.save(display_surface, "MAZE.png")
 
 current_pos = start
 previous_pos = start
@@ -251,7 +257,8 @@ while running:
         #     if event.key == pygame.K_DOWN:
         #         solve()
 
-    solve()
+    # clock.tick(30)
+    depth_first_search()
     pygame.display.update()
 
 # -------------------------------------------
