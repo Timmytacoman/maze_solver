@@ -1,18 +1,17 @@
 # -------------------------------------------
 # Maze Solver V2.0
 # Author: Timothy Foreman
-# Date last modified: 12/21/2020
+# Date last modified: 12/23/2020
 # -------------------------------------------
 from PIL import Image
 import pygame
 import time
 import os
 
-# IMAGE_REF = "images/maze (13).gif"
-IMAGE_REF = "images/maze (12).gif"
+IMAGE_REF = "images/maze (13).gif"
 # IMAGE_REF = "images/maze (12).gif"
 
-IMAGE_SCALE = 1
+IMAGE_SCALE = 30
 # IMAGE_SCALE = 30
 START_COLOR = (0, 255, 100)
 FINISH_COLOR = (0, 255, 100)
